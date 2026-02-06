@@ -1,8 +1,7 @@
 import * as readline from "node:readline/promises";
 import { streamText, stepCountIs } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
-import { codingTools, fileTools } from "./tools";
-import { calculatorTools } from "./agents/calculatorAgent/calculatorTools";
+import { codingTools, fileTools, calculatorTools } from "./tools";
 import type { ToolSet } from "ai";
 import { loggingFetch } from "./utils";
 
