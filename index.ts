@@ -26,9 +26,11 @@ async function runAgent({ agent, debug = false }: RunAgentProps) {
 
   const userPrompt = await terminal.question("Prompt to agent: ");
 
-  const anthropicProvider = createAnthropic({
-    fetch: loggingFetch as typeof globalThis.fetch,
-  });
+  const anthropicProvider = debug
+    ? createAnthropic({
+        fetch: loggingFetch as typeof globalThis.fetch,
+      })
+    : createAnthropic();
 
   const createTextStream = ({ tools, system }: CreateTextStreamProps) => {
     return streamText({
@@ -52,7 +54,7 @@ async function runAgent({ agent, debug = false }: RunAgentProps) {
       textStream = createTextStream({
         tools: { ...codingTools, ...fileTools },
         system:
-          "You are a coding agent. You are responsible for coding the project including writing, deleting, moving and refactoring files and code as requested by the user.",
+          "You are a coding agent. You are responsible for coding the project including writing, deleting, moving and refactoring files and code as requested by the user. Make use of available tools to help you with your tasks.",
       });
       break;
     case "calculator":
@@ -86,4 +88,4 @@ async function runAgent({ agent, debug = false }: RunAgentProps) {
   }
 }
 
-runAgent({ agent: "calculator", debug: true });
+runAgent({ agent: "coding", debug: true });
