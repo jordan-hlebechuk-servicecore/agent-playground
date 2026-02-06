@@ -1,0 +1,20 @@
+{
+  "name": "agent-practice",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^25.2.1",
+    "tsx": "^4.21.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.37",
+    "ai": "^6.0.72",
+    "dotenv": "^17.2.4",
+    "zod": "^4.3.6"
+  }
+}
