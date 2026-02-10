@@ -16,11 +16,11 @@ A full-stack web application for running custom AI agents through a browser UI. 
 
 ## Scripts
 
-| Command | Purpose |
-|---|---|
-| `bun run dev:frontend` | Start Vite dev server on port 5173 |
-| `bun run dev:backend` | Start Express server on port 3001 with hot reload |
-| `npx tsc --noEmit` | Typecheck the entire project |
+| Command                | Purpose                                           |
+| ---------------------- | ------------------------------------------------- |
+| `bun run dev:frontend` | Start Vite dev server on port 5173                |
+| `bun run dev:backend`  | Start Express server on port 3001 with hot reload |
+| `npx tsc --noEmit`     | Typecheck the entire project                      |
 
 ## Project Structure
 
@@ -35,8 +35,6 @@ agent-practice/
 │   │   └── index.ts                 # Barrel export
 │   ├── context_files/               # Markdown files loaded into agent system prompts
 │   │   └── AGENT_PRACTICE_OVERVIEW.md
-│   ├── agent_files/                 # Static reference files for tools (e.g., guidelines)
-│   │   └── COMPONENT_GUIDELINES.md
 │   ├── tools/                       # Tool definitions grouped by agent type
 │   │   ├── index.ts                 # Barrel export
 │   │   ├── codingTools.ts           # webSearch, readWebPage, task, createComponent, etc.
@@ -73,6 +71,7 @@ agent-practice/
 ### Agent System (`agents/`)
 
 **Entry point**: `agents/index.ts` exports `runAgent()` which:
+
 1. Calls `buildSystemPrompt(agent, projectPath)` to assemble the system prompt from base prompt + loaded markdown context files
 2. Creates an Anthropic streaming text completion via `streamText()` from the AI SDK
 3. Passes the configured tool set based on agent type
@@ -81,6 +80,7 @@ agent-practice/
 **Agent types** are defined in `agents/context/types.ts` as the `AgentName` union type. Currently: `"coding"`, `"calculator"`, `"coding_practice_agent"`.
 
 **Adding a new agent** requires:
+
 1. Add the name to the `AgentName` type in `agents/context/types.ts`
 2. Add base prompt and context file list in `agents/context/registry.ts`
 3. Add the switch case in `agents/index.ts` with the appropriate tool set
@@ -118,6 +118,7 @@ An Express server with one main endpoint:
 A React SPA served by Vite.
 
 **State flow**:
+
 1. `App.tsx` holds `userInput`, `agentType` state
 2. `useAgentRunner` hook manages `isLoading`, `output` (array of `AgentStreamChunk`), and `AbortController` for stopping runs
 3. On submit, the hook sends a POST to `/api/agent/run` and reads the SSE stream via `ReadableStream`
@@ -129,6 +130,7 @@ A React SPA served by Vite.
 ## Styling Conventions
 
 **IMPORTANT**: This project uses MUI's `styled` API exclusively. Do NOT use:
+
 - Plain `.css` files (except `index.css` for global resets)
 - `styled-components` package directly
 - Inline `sx` props for complex styles (move them into styled containers)
@@ -137,8 +139,8 @@ A React SPA served by Vite.
 
 ```tsx
 // ComponentName.styles.ts
-import { styled } from '@mui/material/styles';
-import { Box } from '@mui/material';
+import { styled } from "@mui/material/styles";
+import { Box } from "@mui/material";
 
 export const StyledComponentContainer = styled(Box)`
   display: flex;
@@ -155,8 +157,8 @@ export const StyledComponentContainer = styled(Box)`
 `;
 
 // ComponentName.tsx
-import { Box, Typography } from '@mui/material';
-import { StyledComponentContainer } from './ComponentName.styles';
+import { Box, Typography } from "@mui/material";
+import { StyledComponentContainer } from "./ComponentName.styles";
 
 export const ComponentName = () => (
   <StyledComponentContainer>
@@ -170,7 +172,7 @@ export const ComponentName = () => (
 
 ## Component Guidelines
 
-Refer to `agents/agent_files/COMPONENT_GUIDELINES.md` for detailed folder structure and architecture standards. Key points:
+Refer to `agents/context_files/COMPONENT_GUIDELINES.md` for detailed folder structure and architecture standards. Key points:
 
 - Reusable components go in root `/components` organized by type (buttons/, cards/, etc.)
 - Location-specific components go in that location's `/components` folder

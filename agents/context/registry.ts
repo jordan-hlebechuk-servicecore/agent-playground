@@ -10,9 +10,12 @@ const BASE_PROMPTS: Record<AgentName, string> = {
 };
 
 const CONTEXT_FILES: Record<AgentName, string[]> = {
-  coding: [],
+  coding: ["COMPONENT_GUIDELINES.md"],
   calculator: [],
-  coding_practice_agent: ["AGENT_PRACTICE_OVERVIEW.md"],
+  coding_practice_agent: [
+    "AGENT_PRACTICE_OVERVIEW.md",
+    "COMPONENT_GUIDELINES.md",
+  ],
 };
 
 export function getAgentConfig(agent: AgentName): AgentContextConfig {
