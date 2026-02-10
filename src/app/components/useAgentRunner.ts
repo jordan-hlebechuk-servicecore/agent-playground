@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import type { AgentStreamChunk, AgentType } from "./types";
 
 interface UseAgentRunnerReturn {
@@ -6,6 +6,7 @@ interface UseAgentRunnerReturn {
   output: AgentStreamChunk[];
   error: string | null;
   runAgent: (agentType: AgentType, userInput: string) => Promise<void>;
+  stopAgent: () => void;
   clearOutput: () => void;
 }
 
@@ -13,10 +14,18 @@ export const useAgentRunner = (): UseAgentRunnerReturn => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [output, setOutput] = useState<AgentStreamChunk[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const clearOutput = useCallback(() => {
     setOutput([]);
     setError(null);
+  }, []);
+
+  const stopAgent = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      setIsLoading(false);
+    }
   }, []);
 
   const runAgent = useCallback(
@@ -29,6 +38,10 @@ export const useAgentRunner = (): UseAgentRunnerReturn => {
       setIsLoading(true);
       clearOutput();
 
+      // Create a new AbortController for this request
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       try {
         const response = await fetch("http://localhost:3001/api/agent/run", {
           method: "POST",
@@ -40,6 +53,7 @@ export const useAgentRunner = (): UseAgentRunnerReturn => {
             userInput: userInput,
             debug: false,
           }),
+          signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -89,18 +103,31 @@ export const useAgentRunner = (): UseAgentRunnerReturn => {
           }
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
-        console.error("Error calling agent:", err);
-        setError(errorMessage);
-        setOutput((prev) => [
-          ...prev,
-          {
-            type: "error",
-            message: `Error: ${errorMessage}`,
-          },
-        ]);
+        // Don't treat AbortError as a regular error
+        if (err instanceof Error && err.name === "AbortError") {
+          console.log("Agent run was stopped by user");
+          setOutput((prev) => [
+            ...prev,
+            {
+              type: "error",
+              message: "Agent run was stopped by user",
+            },
+          ]);
+        } else {
+          const errorMessage = err instanceof Error ? err.message : "Unknown error";
+          console.error("Error calling agent:", err);
+          setError(errorMessage);
+          setOutput((prev) => [
+            ...prev,
+            {
+              type: "error",
+              message: `Error: ${errorMessage}`,
+            },
+          ]);
+        }
       } finally {
         setIsLoading(false);
+        abortControllerRef.current = null;
       }
     },
     [clearOutput]
@@ -111,6 +138,7 @@ export const useAgentRunner = (): UseAgentRunnerReturn => {
     output,
     error,
     runAgent,
+    stopAgent,
     clearOutput,
   };
 };

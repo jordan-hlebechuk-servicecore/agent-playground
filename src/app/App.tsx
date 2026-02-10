@@ -4,6 +4,7 @@ import { Header } from "./components/Header";
 import { AgentSelector } from "./components/AgentSelector";
 import { PromptInput } from "./components/PromptInput";
 import { SubmitButton } from "./components/SubmitButton";
+import { StopButton } from "./components/StopButton";
 import { OutputSection } from "./components/OutputSection";
 import { useAgentRunner } from "./components/useAgentRunner";
 import type { AgentType } from "./components/types";
@@ -12,7 +13,7 @@ import { StyledAppContainer } from "./App.styles";
 const App: React.FC = () => {
   const [userInput, setUserInput] = useState<string>("");
   const [agentType, setAgentType] = useState<AgentType>("coding");
-  const { isLoading, output, runAgent } = useAgentRunner();
+  const { isLoading, output, runAgent, stopAgent } = useAgentRunner();
 
   const handleSubmit = () => {
     runAgent(agentType, userInput);
@@ -43,11 +44,22 @@ const App: React.FC = () => {
               onChange={setUserInput}
               disabled={isLoading}
             />
-            <SubmitButton
-              onClick={handleSubmit}
-              isLoading={isLoading}
-              disabled={!userInput.trim()}
-            />
+            <Box
+              sx={{
+                display: "flex",
+                gap: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: "16px",
+              }}
+            >
+              <SubmitButton
+                onClick={handleSubmit}
+                isLoading={isLoading}
+                disabled={!userInput.trim()}
+              />
+              {isLoading && <StopButton onClick={stopAgent} disabled={false} />}
+            </Box>
           </Box>
           <OutputSection output={output} isLoading={isLoading} />
         </Box>
