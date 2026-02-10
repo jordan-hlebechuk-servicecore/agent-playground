@@ -46,7 +46,9 @@ export const AgentRunner: React.FC = () => {
   const ticketKey = searchParams.get("ticket");
 
   const [userInput, setUserInput] = useState("");
-  const [agentType, setAgentType] = useState<AgentType>(ticketKey ? "ticket" : "coding");
+  const [agentType, setAgentType] = useState<AgentType>(
+    ticketKey ? "ticket" : "coding"
+  );
   const [selectedRepos, setSelectedRepos] = useState<RepoOption[]>([]);
   const [ticket, setTicket] = useState<JiraTicket | null>(null);
   const { isLoading, output, runAgent, stopAgent } = useAgentRunner();
@@ -56,7 +58,9 @@ export const AgentRunner: React.FC = () => {
 
     const fetchTicket = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/jira/tickets/${ticketKey}`);
+        const response = await fetch(
+          `http://localhost:3001/api/jira/tickets/${ticketKey}`
+        );
         if (response.ok) {
           const data = (await response.json()) as JiraTicket;
           setTicket(data);
@@ -70,16 +74,58 @@ export const AgentRunner: React.FC = () => {
     fetchTicket();
   }, [ticketKey]);
 
+  const getRepoContextFiles = (repoNames: string[]) => {
+    const prefix =
+      "For context on the target repositories, refer to the following files: ";
+    const contextFiles: string[] = [];
+
+    repoNames.forEach((repoName) => {
+      switch (repoName) {
+        case "docket":
+          contextFiles.push(
+            "agents/context_files/repo_specific/DOCKET_REPO_OVERVIEW.md"
+          );
+          break;
+        case "docket-platform":
+          contextFiles.push(
+            "agents/context_files/repo_specific/DOCKET-PLATFORM_REPO_OVERVIEW.md"
+          );
+          break;
+        case "docket-customer-portal":
+          contextFiles.push(
+            "agents/context_files/repo_specific/DOCKET-CUSTOMER-PORTAL_REPO_OVERVIEW.md"
+          );
+          break;
+        default:
+          break;
+      }
+    });
+    return contextFiles.length > 0
+      ? `${prefix} ${contextFiles.join(", ")}`
+      : "";
+  };
+
+  // Builds system message for agent
   const handleSubmit = () => {
     let systemContext: string | undefined;
 
     if (ticket) {
       const repoInfo =
         selectedRepos.length > 0
-          ? `\n\nTarget repositories:\n${selectedRepos.map((r) => `- ${r.name} (${r.cloneUrl})`).join("\n")}`
+          ? `\n\nTarget repositories:\n${selectedRepos
+              .map((r) => `- ${r.name} (${r.cloneUrl})`)
+              .join("\n")}`
           : "";
 
-      systemContext = `# JIRA Ticket: ${ticket.key}\n\n**Summary:** ${ticket.summary}\n**Status:** ${ticket.status}\n**Priority:** ${ticket.priority}\n**Type:** ${ticket.type}\n\n**Description:**\n${renderDescription(ticket.description)}${repoInfo}`;
+      systemContext = `# JIRA Ticket: ${ticket.key}\n\n**Summary:** ${
+        ticket.summary
+      }\n**Status:** ${ticket.status}\n**Priority:** ${
+        ticket.priority
+      }\n**Type:** ${ticket.type}\n\n**Description:**\n${renderDescription(
+        ticket.description
+      )}${repoInfo} \n\n${getRepoContextFiles(
+        selectedRepos.map((r) => r.name)
+      )}`.trim();
     }
 
     runAgent(agentType, userInput, systemContext);
