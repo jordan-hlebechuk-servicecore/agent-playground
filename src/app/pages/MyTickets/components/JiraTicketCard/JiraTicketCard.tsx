@@ -58,6 +58,7 @@ export const JiraTicketCard: React.FC<JiraTicketCardProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const isBug = ticket.type?.toLowerCase() === "bug";
+  const actionLabel = isBug ? "Handle Bugfix" : "Handle Task";
 
   return (
     <StyledTicketCard onClick={() => setExpanded(!expanded)}>
@@ -97,18 +98,16 @@ export const JiraTicketCard: React.FC<JiraTicketCardProps> = ({
             >
               View in JIRA
             </Button>
-            {isBug && (
-              <Button
-                className="HandleBugfix"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAction(ticket);
-                }}
-                endIcon={<ArrowForward />}
-              >
-                Handle Bugfix
-              </Button>
-            )}
+            <Button
+              className="HandleBugfix"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAction(ticket);
+              }}
+              endIcon={<ArrowForward />}
+            >
+              {actionLabel}
+            </Button>
           </Box>
         </Box>
       </Collapse>

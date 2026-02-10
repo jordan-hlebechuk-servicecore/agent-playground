@@ -46,7 +46,7 @@ export const AgentRunner: React.FC = () => {
   const ticketKey = searchParams.get("ticket");
 
   const [userInput, setUserInput] = useState("");
-  const [agentType, setAgentType] = useState<AgentType>(ticketKey ? "bugfix" : "coding");
+  const [agentType, setAgentType] = useState<AgentType>(ticketKey ? "ticket" : "coding");
   const [selectedRepos, setSelectedRepos] = useState<RepoOption[]>([]);
   const [ticket, setTicket] = useState<JiraTicket | null>(null);
   const { isLoading, output, runAgent, stopAgent } = useAgentRunner();
@@ -60,7 +60,7 @@ export const AgentRunner: React.FC = () => {
         if (response.ok) {
           const data = (await response.json()) as JiraTicket;
           setTicket(data);
-          setAgentType("bugfix");
+          setAgentType("ticket");
         }
       } catch (err) {
         console.error("Failed to fetch ticket:", err);
@@ -73,7 +73,7 @@ export const AgentRunner: React.FC = () => {
   const handleSubmit = () => {
     let systemContext: string | undefined;
 
-    if (agentType === "bugfix" && ticket) {
+    if (ticket) {
       const repoInfo =
         selectedRepos.length > 0
           ? `\n\nTarget repositories:\n${selectedRepos.map((r) => `- ${r.name} (${r.cloneUrl})`).join("\n")}`
@@ -89,7 +89,7 @@ export const AgentRunner: React.FC = () => {
     <StyledAgentRunnerContainer>
       <Box className="PageHeader">
         <Typography className="PageTitle">
-          {ticket ? `Bugfix: ${ticket.key}` : "Agent Runner"}
+          {ticket ? `${ticket.type}: ${ticket.key}` : "Agent Runner"}
         </Typography>
         <Typography className="PageSubtitle">
           {ticket ? ticket.summary : "Select an agent type and send prompts"}
@@ -112,7 +112,7 @@ export const AgentRunner: React.FC = () => {
           }}
           className="InputForm"
         >
-          {agentType !== "bugfix" && (
+          {!ticket && (
             <div style={{ marginBottom: "16px" }}>
               <AgentSelector
                 value={agentType}
@@ -121,7 +121,7 @@ export const AgentRunner: React.FC = () => {
               />
             </div>
           )}
-          {agentType === "bugfix" && (
+          {ticket && (
             <RepoSelector
               selectedRepos={selectedRepos}
               onChange={setSelectedRepos}

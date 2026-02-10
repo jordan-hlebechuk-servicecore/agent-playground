@@ -120,6 +120,12 @@ export async function runAgent({
         system: finalSystemPrompt,
       });
       break;
+    case "ticket":
+      textStream = createTextStream({
+        tools: { ...codingTools, ...fileTools, ...gitTools, ...jiraTools, ...bitbucketTools },
+        system: finalSystemPrompt,
+      });
+      break;
   }
 
   try {

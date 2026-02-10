@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { runAgent } from "../../../../../agents/index.js";
 
 interface RunAgentRequest {
-  agent: "coding" | "calculator" | "coding_practice_agent" | "bugfix";
+  agent: "coding" | "calculator" | "coding_practice_agent" | "bugfix" | "ticket";
   userInput: string;
   projectPath?: string;
   systemContext?: string;
@@ -39,6 +39,7 @@ export const runAgentEndpoint = async (req: Request, res: Response) => {
       "calculator",
       "coding_practice_agent",
       "bugfix",
+      "ticket",
     ];
     if (!validAgents.includes(agent)) {
       res.status(400).json({
