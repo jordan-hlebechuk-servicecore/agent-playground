@@ -1,4 +1,4 @@
-export type AgentName = "coding" | "calculator" | "coding_practice_agent";
+export type AgentName = "coding" | "calculator" | "coding_practice_agent" | "bugfix";
 
 export interface AgentContextConfig {
   baseSystemPrompt: string;

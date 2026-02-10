@@ -1,6 +1,13 @@
 import { streamText, stepCountIs } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
-import { codingTools, fileTools, calculatorTools } from "./tools";
+import {
+  codingTools,
+  fileTools,
+  calculatorTools,
+  jiraTools,
+  gitTools,
+  bitbucketTools,
+} from "./tools";
 import type { ToolSet } from "ai";
 import { loggingFetch } from "./utils";
 import { buildSystemPrompt } from "./context";
@@ -23,6 +30,7 @@ interface RunAgentProps {
   agent: AgentName;
   userInput: string;
   projectPath?: string;
+  systemContext?: string;
   debug?: boolean;
   onChunk?: (chunk: AgentStreamChunk) => void;
 }
@@ -33,6 +41,7 @@ export async function runAgent({
   agent,
   userInput,
   projectPath,
+  systemContext,
   debug = false,
   onChunk,
 }: RunAgentProps): Promise<void> {
@@ -48,6 +57,11 @@ export async function runAgent({
     if (errors.length > 0) {
       console.warn("Context loading errors:", errors);
     }
+  }
+
+  let finalSystemPrompt = systemPrompt;
+  if (systemContext) {
+    finalSystemPrompt += "\n\n# Additional Context\n\n" + systemContext;
   }
 
   const anthropicProvider = debug
@@ -76,14 +90,34 @@ export async function runAgent({
   switch (agent) {
     case "coding":
       textStream = createTextStream({
-        tools: { ...codingTools, ...fileTools },
-        system: systemPrompt,
+        tools: {
+          ...codingTools,
+          ...fileTools,
+          ...bitbucketTools,
+          ...jiraTools,
+        },
+        system: finalSystemPrompt,
+      });
+      break;
+    case "coding_practice_agent":
+      textStream = createTextStream({
+        tools: {
+          ...codingTools,
+          ...fileTools,
+        },
+        system: finalSystemPrompt,
       });
       break;
     case "calculator":
       textStream = createTextStream({
         tools: calculatorTools,
-        system: systemPrompt,
+        system: finalSystemPrompt,
+      });
+      break;
+    case "bugfix":
+      textStream = createTextStream({
+        tools: { ...fileTools, ...gitTools, ...jiraTools, ...bitbucketTools },
+        system: finalSystemPrompt,
       });
       break;
   }
