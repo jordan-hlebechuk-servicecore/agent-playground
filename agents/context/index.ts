@@ -1,3 +1,10 @@
 export { buildSystemPrompt } from "./loader";
-export { getAgentConfig } from "./registry";
-export type { AgentName, AgentContextConfig, LoadedContext } from "./types";
+export { getAgentConfig, getRepoContextFiles } from "./registry";
+export { fetchTicketInfo, formatTicketContext } from "./ticket";
+export type {
+  AgentName,
+  AgentContextConfig,
+  LoadedContext,
+  TicketInfo,
+  BuildContextInput,
+} from "./types";

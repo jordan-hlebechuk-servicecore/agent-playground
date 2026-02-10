@@ -5,7 +5,7 @@ interface UseAgentRunnerReturn {
   isLoading: boolean;
   output: AgentStreamChunk[];
   error: string | null;
-  runAgent: (agentType: AgentType, userInput: string, systemContext?: string) => Promise<void>;
+  runAgent: (agentType: AgentType, userInput: string, opts?: { ticketKey?: string; repoSlugs?: string[] }) => Promise<void>;
   stopAgent: () => void;
   clearOutput: () => void;
 }
@@ -29,7 +29,7 @@ export const useAgentRunner = (): UseAgentRunnerReturn => {
   }, []);
 
   const runAgent = useCallback(
-    async (agentType: AgentType, userInput: string, systemContext?: string) => {
+    async (agentType: AgentType, userInput: string, opts?: { ticketKey?: string; repoSlugs?: string[] }) => {
       if (!userInput.trim()) {
         setError("Please enter a prompt");
         return;
@@ -51,7 +51,8 @@ export const useAgentRunner = (): UseAgentRunnerReturn => {
           body: JSON.stringify({
             agent: agentType,
             userInput: userInput,
-            systemContext,
+            ticketKey: opts?.ticketKey,
+            repoSlugs: opts?.repoSlugs,
             debug: false,
           }),
           signal: controller.signal,

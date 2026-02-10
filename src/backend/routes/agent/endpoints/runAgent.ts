@@ -5,7 +5,8 @@ interface RunAgentRequest {
   agent: "coding" | "calculator" | "coding_practice_agent" | "bugfix" | "ticket";
   userInput: string;
   projectPath?: string;
-  systemContext?: string;
+  ticketKey?: string;
+  repoSlugs?: string[];
   debug?: boolean;
 }
 
@@ -23,7 +24,8 @@ export const runAgentEndpoint = async (req: Request, res: Response) => {
       agent,
       userInput,
       projectPath,
-      systemContext,
+      ticketKey,
+      repoSlugs,
       debug = false,
     } = req.body as RunAgentRequest;
 
@@ -66,7 +68,8 @@ export const runAgentEndpoint = async (req: Request, res: Response) => {
         agent,
         userInput,
         projectPath,
-        systemContext,
+        ticketKey,
+        repoSlugs,
         debug,
         onChunk: chunkHandler,
       });

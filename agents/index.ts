@@ -30,7 +30,8 @@ interface RunAgentProps {
   agent: AgentName;
   userInput: string;
   projectPath?: string;
-  systemContext?: string;
+  ticketKey?: string;
+  repoSlugs?: string[];
   debug?: boolean;
   onChunk?: (chunk: AgentStreamChunk) => void;
 }
@@ -41,16 +42,19 @@ export async function runAgent({
   agent,
   userInput,
   projectPath,
-  systemContext,
+  ticketKey,
+  repoSlugs,
   debug = false,
   onChunk,
 }: RunAgentProps): Promise<void> {
   const userPrompt = userInput;
 
-  const { systemPrompt, loadedFiles, errors } = await buildSystemPrompt(
+  const { systemPrompt, loadedFiles, errors } = await buildSystemPrompt({
     agent,
-    projectPath
-  );
+    projectPath,
+    ticketKey,
+    repoSlugs,
+  });
 
   if (debug) {
     console.log("Loaded context files:", loadedFiles);
@@ -59,10 +63,7 @@ export async function runAgent({
     }
   }
 
-  let finalSystemPrompt = systemPrompt;
-  if (systemContext) {
-    finalSystemPrompt += "\n\n# Additional Context\n\n" + systemContext;
-  }
+  const finalSystemPrompt = systemPrompt;
 
   const anthropicProvider = debug
     ? createAnthropic({

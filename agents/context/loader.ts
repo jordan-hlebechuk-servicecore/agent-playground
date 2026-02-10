@@ -1,9 +1,10 @@
-import fs from "fs";
 import path from "path";
-import type { AgentName, LoadedContext } from "./types";
-import { getAgentConfig } from "./registry";
+import type { BuildContextInput, LoadedContext } from "./types";
+import { getAgentConfig, getRepoContextFiles } from "./registry";
+import { fetchTicketInfo, formatTicketContext } from "./ticket";
 
 const CONTEXT_DIR = path.join(import.meta.dir, "../context_files");
+const REPO_CONTEXT_DIR = path.join(CONTEXT_DIR, "repo_specific");
 
 async function loadFile(filePath: string): Promise<string | null> {
   try {
@@ -14,82 +15,81 @@ async function loadFile(filePath: string): Promise<string | null> {
   }
 }
 
-async function loadContextFiles(
+async function loadFilesFromDir(
+  dir: string,
   fileNames: string[]
 ): Promise<{ loaded: { name: string; content: string }[]; errors: string[] }> {
   const loaded: { name: string; content: string }[] = [];
   const errors: string[] = [];
 
   for (const fileName of fileNames) {
-    const filePath = path.join(CONTEXT_DIR, fileName);
+    const filePath = path.join(dir, fileName);
     const content = await loadFile(filePath);
 
     if (content) {
       loaded.push({ name: fileName, content });
+    } else {
+      errors.push(`Failed to load: ${fileName}`);
     }
   }
 
   return { loaded, errors };
 }
 
-async function loadProjectContextFiles(
-  projectPath: string,
-  fileNames: string[]
-): Promise<{ loaded: { name: string; content: string }[]; errors: string[] }> {
-  const loaded: { name: string; content: string }[] = [];
-  const errors: string[] = [];
-
-  for (const fileName of fileNames) {
-    const filePath = path.join(projectPath, fileName);
-    const content = await loadFile(filePath);
-
-    if (content) {
-      loaded.push({ name: fileName, content });
-    }
-  }
-
-  return { loaded, errors };
-}
-
-function formatContextSection(
-  files: { name: string; content: string }[]
-): string {
+function formatSection(heading: string, files: { name: string; content: string }[]): string {
   if (files.length === 0) return "";
 
   const sections = files.map(
-    ({ name, content }) =>
-      `## ${name}\n\n${content}`
+    ({ name, content }) => `## ${name}\n\n${content}`
   );
 
-  return "\n\n# Project Context\n\n" + sections.join("\n\n---\n\n");
+  return `\n\n# ${heading}\n\n${sections.join("\n\n---\n\n")}`;
 }
 
 export async function buildSystemPrompt(
-  agent: AgentName,
-  projectPath?: string
+  input: BuildContextInput
 ): Promise<LoadedContext> {
+  const { agent, repoSlugs, ticketKey, projectPath } = input;
   const config = getAgentConfig(agent);
-  const allLoaded: { name: string; content: string }[] = [];
+  const allLoaded: string[] = [];
   const allErrors: string[] = [];
+  let prompt = config.baseSystemPrompt;
 
-  const bundled = await loadContextFiles(config.contextFiles);
-  allLoaded.push(...bundled.loaded);
-  allErrors.push(...bundled.errors);
+  const agentFiles = await loadFilesFromDir(CONTEXT_DIR, config.contextFiles);
+  allLoaded.push(...agentFiles.loaded.map((f) => f.name));
+  allErrors.push(...agentFiles.errors);
+  prompt += formatSection("Project Context", agentFiles.loaded);
 
   if (projectPath) {
-    const project = await loadProjectContextFiles(
-      projectPath,
-      config.contextFiles
-    );
-    allLoaded.push(...project.loaded);
-    allErrors.push(...project.errors);
+    const projectFiles = await loadFilesFromDir(projectPath, config.contextFiles);
+    allLoaded.push(...projectFiles.loaded.map((f) => `${projectPath}/${f.name}`));
+    allErrors.push(...projectFiles.errors);
+    prompt += formatSection("Project-Specific Context", projectFiles.loaded);
   }
 
-  const contextSection = formatContextSection(allLoaded);
+  if (repoSlugs && repoSlugs.length > 0) {
+    const repoFileNames = getRepoContextFiles(repoSlugs);
+    if (repoFileNames.length > 0) {
+      const repoFiles = await loadFilesFromDir(REPO_CONTEXT_DIR, repoFileNames);
+      allLoaded.push(...repoFiles.loaded.map((f) => `repo_specific/${f.name}`));
+      allErrors.push(...repoFiles.errors);
+      prompt += formatSection("Repository Context", repoFiles.loaded);
+    }
+  }
+
+  if (ticketKey) {
+    const ticket = await fetchTicketInfo(ticketKey);
+    if (ticket) {
+      prompt += "\n\n" + formatTicketContext(ticket, repoSlugs);
+      allLoaded.push(`ticket:${ticketKey}`);
+    } else {
+      allErrors.push(`Failed to fetch ticket: ${ticketKey}`);
+    }
+  }
 
   return {
-    systemPrompt: config.baseSystemPrompt + contextSection,
-    loadedFiles: allLoaded.map((f) => f.name),
+    systemPrompt: prompt,
+    loadedFiles: allLoaded,
     errors: allErrors,
   };
 }

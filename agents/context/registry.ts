@@ -30,3 +30,13 @@ export function getAgentConfig(agent: AgentName): AgentContextConfig {
     contextFiles: CONTEXT_FILES[agent],
   };
 }
+
+const REPO_CONTEXT_FILES: Record<string, string[]> = {
+  docket: ["DOCKET_REPO_OVERVIEW.md"],
+  "docket-platform": ["DOCKET-PLATFORM_REPO_OVERVIEW.md"],
+  "docket-customer-portal": ["DOCKET-CUSTOMER-PORTAL_REPO_OVERVIEW.md"],
+};
+
+export function getRepoContextFiles(repoSlugs: string[]): string[] {
+  return repoSlugs.flatMap((slug) => REPO_CONTEXT_FILES[slug] ?? []);
+}
