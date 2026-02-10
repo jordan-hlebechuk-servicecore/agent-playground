@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Box } from "@mui/material";
 import { Header } from "./components/Header";
 import { AgentSelector } from "./components/AgentSelector";
 import { PromptInput } from "./components/PromptInput";
@@ -6,7 +7,7 @@ import { SubmitButton } from "./components/SubmitButton";
 import { OutputSection } from "./components/OutputSection";
 import { useAgentRunner } from "./components/useAgentRunner";
 import type { AgentType } from "./components/types";
-import "./components/AgentInput.css";
+import { StyledAppContainer } from "./App.styles";
 
 const App: React.FC = () => {
   const [userInput, setUserInput] = useState<string>("");
@@ -18,16 +19,17 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="agent-input-container">
-      <div className="agent-input-wrapper">
+    <StyledAppContainer>
+      <Box className="Wrapper">
         <Header />
-        <div className="main-content">
-          <form
-            onSubmit={(e) => {
+        <Box className="MainContent">
+          <Box
+            component="form"
+            onSubmit={(e: React.FormEvent) => {
               e.preventDefault();
               handleSubmit();
             }}
-            className="input-form"
+            className="InputForm"
           >
             <div style={{ marginBottom: "16px" }}>
               <AgentSelector
@@ -46,11 +48,11 @@ const App: React.FC = () => {
               isLoading={isLoading}
               disabled={!userInput.trim()}
             />
-          </form>
+          </Box>
           <OutputSection output={output} isLoading={isLoading} />
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </StyledAppContainer>
   );
 };
 

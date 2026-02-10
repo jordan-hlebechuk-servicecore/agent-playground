@@ -16,7 +16,7 @@ function saveToHistory(filePath: string, content: string) {
 export const fileTools = {
   createFile: tool<{ path: string; content: string }, string>({
     description:
-      "Create or overwrite a file. Use for new files or when replacing nearly all content of a small file (under ~250 lines). For partial edits to existing files, use `editFile` instead. Always use TypeScript (.ts/.tsx) when creating code files.",
+      "Create or overwrite a file. Use for new files or when replacing nearly all content of a small file (under ~250 lines). For partial edits to existing files, use `editFile` instead. Always use TypeScript (.ts/.tsx) when creating code files. STYLING: Never create .css files for component styling. Use MUI's styled API (import { styled } from '@mui/material/styles') with the className-based container pattern. Style files should be named ComponentName.styles.ts and export styled containers with the Styled prefix.",
     inputSchema: z.object({
       path: z.string().describe("Absolute path to the file to create"),
       content: z.string().describe("The content to write to the file"),

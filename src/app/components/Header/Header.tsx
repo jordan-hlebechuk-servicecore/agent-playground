@@ -1,5 +1,6 @@
 import React from "react";
-import { HeaderWrapper, Title, Subtitle } from "./Header.styles";
+import { Typography } from "@mui/material";
+import { StyledHeaderContainer } from "./Header.styles";
 
 interface HeaderProps {
   title?: string;
@@ -11,9 +12,13 @@ export const Header: React.FC<HeaderProps> = ({
   subtitle = "Send prompts to the agent",
 }) => {
   return (
-    <HeaderWrapper>
-      <Title>{title}</Title>
-      <Subtitle>{subtitle}</Subtitle>
-    </HeaderWrapper>
+    <StyledHeaderContainer>
+      <Typography variant="h1" className="Title">
+        {title}
+      </Typography>
+      <Typography variant="body2" className="Subtitle">
+        {subtitle}
+      </Typography>
+    </StyledHeaderContainer>
   );
 };

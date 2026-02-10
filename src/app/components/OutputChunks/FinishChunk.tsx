@@ -1,11 +1,7 @@
 import React from "react";
+import { Box } from "@mui/material";
 import type { AgentStreamChunk } from "../types";
-import {
-  FinishChunk as StyledFinishChunk,
-  FinishHeader,
-  FinishIcon,
-  FinishText,
-} from "./OutputChunks.styles";
+import { StyledFinishChunk } from "./OutputChunks.styles";
 
 interface FinishChunkProps {
   chunk: AgentStreamChunk;
@@ -14,10 +10,10 @@ interface FinishChunkProps {
 export const FinishChunk: React.FC<FinishChunkProps> = ({ chunk }) => {
   return (
     <StyledFinishChunk>
-      <FinishHeader>
-        <FinishIcon>🏁</FinishIcon>
-        <FinishText>Agent finished</FinishText>
-      </FinishHeader>
+      <Box className="FinishHeader">
+        <Box className="FinishIcon" component="span">🏁</Box>
+        <Box className="FinishText" component="span">Agent finished</Box>
+      </Box>
     </StyledFinishChunk>
   );
 };

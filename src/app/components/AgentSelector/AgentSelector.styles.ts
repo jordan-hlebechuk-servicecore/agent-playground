@@ -1,6 +1,7 @@
-import styled from "styled-components";
+import { styled } from '@mui/material/styles';
+import { Box } from '@mui/material';
 
-export const SelectorWrapper = styled.div`
+export const StyledSelectorContainer = styled(Box)`
   width: 100%;
 
   .MuiFormControl-root {

@@ -153,7 +153,18 @@ Requirements:
 - Place reusable components in root /components with type-based subfolders
 - Place location-specific components in that location's /components folder
 - Separate logic (hooks) from presentation (JSX)
-- Modern React patterns, proper types, accessibility, error handling`,
+- Modern React patterns, proper types, accessibility, error handling
+
+STYLING RULES:
+- NEVER use plain CSS files (.css) for component styling
+- Use MUI's styled API: import { styled } from '@mui/material/styles'
+- Use the className-based container pattern: create a single StyledContainer with nested className selectors (e.g., .Title, .Content) instead of many individual styled components
+- Components should use MUI's Box with className props to target nested styles (e.g., <Box className="Title">)
+- Use MUI Typography for text elements with className selectors
+- For simple components, define the styled container in the same file
+- For complex styling, create a separate ComponentName.styles.ts file in the component folder
+- All styled containers should be named with the Styled prefix (e.g., StyledHeaderContainer, StyledCardContainer)
+- Inline sx props on MUI components should be avoided; move styles into the styled container instead`,
     inputSchema: z.object({
       name: z.string().describe("Component name (PascalCase)"),
       filePath: z.string().describe("Full file path including filename"),

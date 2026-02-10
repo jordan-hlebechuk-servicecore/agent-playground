@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { AGENT_OPTIONS } from "../types";
 import type { AgentType } from "../types";
-import { SelectorWrapper } from "./AgentSelector.styles";
+import { StyledSelectorContainer } from "./AgentSelector.styles";
 
 interface AgentSelectorProps {
   value: AgentType;
@@ -26,7 +26,7 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
   };
 
   return (
-    <SelectorWrapper>
+    <StyledSelectorContainer>
       <FormControl fullWidth disabled={disabled}>
         <InputLabel id="agent-select-label">Select Agent</InputLabel>
         <Select
@@ -43,6 +43,6 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
           ))}
         </Select>
       </FormControl>
-    </SelectorWrapper>
+    </StyledSelectorContainer>
   );
 };

@@ -1,6 +1,7 @@
-import styled from "styled-components";
+import { styled } from '@mui/material/styles';
+import { Box } from '@mui/material';
 
-export const InputWrapper = styled.div`
+export const StyledPromptInputContainer = styled(Box)`
   width: 100%;
 
   .MuiOutlinedInput-root {

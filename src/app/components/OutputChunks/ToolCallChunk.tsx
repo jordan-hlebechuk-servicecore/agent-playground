@@ -1,12 +1,7 @@
 import React from "react";
+import { Box } from "@mui/material";
 import type { AgentStreamChunk } from "../types";
-import {
-  ToolCallChunk as StyledToolCallChunk,
-  ToolHeader,
-  ToolIcon,
-  ToolName,
-  ToolInput,
-} from "./OutputChunks.styles";
+import { StyledToolCallChunk } from "./OutputChunks.styles";
 
 interface ToolCallChunkProps {
   chunk: AgentStreamChunk;
@@ -15,12 +10,12 @@ interface ToolCallChunkProps {
 export const ToolCallChunk: React.FC<ToolCallChunkProps> = ({ chunk }) => {
   return (
     <StyledToolCallChunk>
-      <ToolHeader>
-        <ToolIcon>🔧</ToolIcon>
-        <ToolName>Calling: {chunk.toolName}</ToolName>
-      </ToolHeader>
+      <Box className="ToolHeader">
+        <Box className="ToolIcon" component="span">🔧</Box>
+        <Box className="ToolName" component="span">Calling: {chunk.toolName}</Box>
+      </Box>
       {chunk.input !== undefined && (
-        <ToolInput>{JSON.stringify(chunk.input, null, 2)}</ToolInput>
+        <Box className="ToolInput" component="pre">{JSON.stringify(chunk.input, null, 2)}</Box>
       )}
     </StyledToolCallChunk>
   );

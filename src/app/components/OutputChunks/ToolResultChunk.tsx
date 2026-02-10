@@ -1,12 +1,7 @@
 import React from "react";
+import { Box } from "@mui/material";
 import type { AgentStreamChunk } from "../types";
-import {
-  ToolResultChunk as StyledToolResultChunk,
-  ResultHeader,
-  ResultIcon,
-  ResultLabel,
-  ResultOutput,
-} from "./OutputChunks.styles";
+import { StyledToolResultChunk } from "./OutputChunks.styles";
 
 interface ToolResultChunkProps {
   chunk: AgentStreamChunk;
@@ -15,16 +10,16 @@ interface ToolResultChunkProps {
 export const ToolResultChunk: React.FC<ToolResultChunkProps> = ({ chunk }) => {
   return (
     <StyledToolResultChunk>
-      <ResultHeader>
-        <ResultIcon>✅</ResultIcon>
-        <ResultLabel>Result:</ResultLabel>
-      </ResultHeader>
+      <Box className="ResultHeader">
+        <Box className="ResultIcon" component="span">✅</Box>
+        <Box className="ResultLabel" component="span">Result:</Box>
+      </Box>
       {chunk.output !== undefined && (
-        <ResultOutput>
+        <Box className="ResultOutput" component="pre">
           {typeof chunk.output === "string"
             ? chunk.output
             : JSON.stringify(chunk.output, null, 2)}
-        </ResultOutput>
+        </Box>
       )}
     </StyledToolResultChunk>
   );

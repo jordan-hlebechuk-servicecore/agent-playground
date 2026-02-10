@@ -1,6 +1,6 @@
 import React from "react";
 import { TextField } from "@mui/material";
-import { InputWrapper } from "./PromptInput.styles";
+import { StyledPromptInputContainer } from "./PromptInput.styles";
 
 interface PromptInputProps {
   value: string;
@@ -22,7 +22,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
   };
 
   return (
-    <InputWrapper>
+    <StyledPromptInputContainer>
       <TextField
         id="prompt-input"
         label="Prompt"
@@ -41,6 +41,6 @@ export const PromptInput: React.FC<PromptInputProps> = ({
           },
         }}
       />
-    </InputWrapper>
+    </StyledPromptInputContainer>
   );
 };

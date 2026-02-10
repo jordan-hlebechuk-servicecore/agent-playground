@@ -1,13 +1,9 @@
 import React, { useMemo } from "react";
+import { Box, Typography } from "@mui/material";
 import type { AgentStreamChunk } from "../types";
 import { ChunkRenderer } from "../OutputChunks";
 import { useOutputSection } from "./useOutputSection";
-import {
-  OutputSectionWrapper,
-  OutputTitle,
-  OutputContainer,
-  EmptyState,
-} from "./OutputSection.styles";
+import { StyledOutputSectionContainer } from "./OutputSection.styles";
 
 interface OutputSectionProps {
   output: AgentStreamChunk[];
@@ -55,19 +51,19 @@ export const OutputSection: React.FC<OutputSectionProps> = ({
   }, [output]);
 
   return (
-    <OutputSectionWrapper>
-      <OutputTitle>Output:</OutputTitle>
-      <OutputContainer>
+    <StyledOutputSectionContainer>
+      <Typography variant="h2" className="Title">Output:</Typography>
+      <Box className="OutputContainer">
         {output.length === 0 && !isLoading && (
-          <EmptyState>
+          <Typography className="EmptyState">
             Submit a prompt to see the agent output here
-          </EmptyState>
+          </Typography>
         )}
         {groupedOutput.map((chunk) => (
           <ChunkRenderer key={chunk.groupIndex} chunk={chunk} index={chunk.groupIndex} />
         ))}
         <div ref={outputEndRef} />
-      </OutputContainer>
-    </OutputSectionWrapper>
+      </Box>
+    </StyledOutputSectionContainer>
   );
 };

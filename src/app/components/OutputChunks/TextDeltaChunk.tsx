@@ -1,6 +1,7 @@
 import React from "react";
+import { Box } from "@mui/material";
 import type { AgentStreamChunk } from "../types";
-import { TextDeltaChunk as StyledTextDeltaChunk, TextContent } from "./OutputChunks.styles";
+import { StyledTextDeltaChunk } from "./OutputChunks.styles";
 
 interface TextDeltaChunkProps {
   chunk: AgentStreamChunk;
@@ -9,7 +10,7 @@ interface TextDeltaChunkProps {
 export const TextDeltaChunk: React.FC<TextDeltaChunkProps> = ({ chunk }) => {
   return (
     <StyledTextDeltaChunk>
-      <TextContent>{chunk.text}</TextContent>
+      <Box className="TextContent" component="span">{chunk.text}</Box>
     </StyledTextDeltaChunk>
   );
 };

@@ -1,11 +1,7 @@
 import React from "react";
+import { Box } from "@mui/material";
 import type { AgentStreamChunk } from "../types";
-import {
-  ErrorChunk as StyledErrorChunk,
-  ErrorHeader,
-  ErrorIcon,
-  ErrorText,
-} from "./OutputChunks.styles";
+import { StyledErrorChunk } from "./OutputChunks.styles";
 
 interface ErrorChunkProps {
   chunk: AgentStreamChunk;
@@ -14,10 +10,10 @@ interface ErrorChunkProps {
 export const ErrorChunk: React.FC<ErrorChunkProps> = ({ chunk }) => {
   return (
     <StyledErrorChunk>
-      <ErrorHeader>
-        <ErrorIcon>❌</ErrorIcon>
-        <ErrorText>{chunk.message}</ErrorText>
-      </ErrorHeader>
+      <Box className="ErrorHeader">
+        <Box className="ErrorIcon" component="span">❌</Box>
+        <Box className="ErrorText" component="span">{chunk.message}</Box>
+      </Box>
     </StyledErrorChunk>
   );
 };
