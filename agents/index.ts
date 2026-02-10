@@ -1,9 +1,10 @@
-import * as readline from "node:readline/promises";
 import { streamText, stepCountIs } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { codingTools, fileTools, calculatorTools } from "./tools";
 import type { ToolSet } from "ai";
 import { loggingFetch } from "./utils";
+import { buildSystemPrompt } from "./context";
+import type { AgentName } from "./context";
 
 interface CreateTextStreamProps {
   tools: ToolSet;
@@ -21,19 +22,33 @@ interface AgentStreamChunk {
 interface RunAgentProps {
   agent: AgentName;
   userInput: string;
+  projectPath?: string;
   debug?: boolean;
   onChunk?: (chunk: AgentStreamChunk) => void;
 }
 
-type AgentName = "coding" | "calculator";
+export type { AgentName };
 
 export async function runAgent({
   agent,
   userInput,
+  projectPath,
   debug = false,
   onChunk,
 }: RunAgentProps): Promise<void> {
   const userPrompt = userInput;
+
+  const { systemPrompt, loadedFiles, errors } = await buildSystemPrompt(
+    agent,
+    projectPath
+  );
+
+  if (debug) {
+    console.log("Loaded context files:", loadedFiles);
+    if (errors.length > 0) {
+      console.warn("Context loading errors:", errors);
+    }
+  }
 
   const anthropicProvider = debug
     ? createAnthropic({
@@ -62,15 +77,13 @@ export async function runAgent({
     case "coding":
       textStream = createTextStream({
         tools: { ...codingTools, ...fileTools },
-        system:
-          "You are a coding agent. You are responsible for coding the project including writing, deleting, moving and refactoring files and code as requested by the user. Make use of available tools to help you with your tasks.",
+        system: systemPrompt,
       });
       break;
     case "calculator":
       textStream = createTextStream({
         tools: calculatorTools,
-        system:
-          "You are a calculator agent. You are responsible for solving equations provided by the user. You need to pick up on the user's intent for the given equation and recognize mathematical operations and symbols, whether written as text or symbols.",
+        system: systemPrompt,
       });
       break;
   }

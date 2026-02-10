@@ -15,6 +15,7 @@ app.use(cors());
 interface RunAgentRequest {
   agent: "coding" | "calculator";
   userInput: string;
+  projectPath?: string;
   debug?: boolean;
 }
 
@@ -34,7 +35,7 @@ app.get("/health", (req: Request, res: Response) => {
 // Run agent endpoint
 app.post("/api/agent/run", async (req: Request, res: Response) => {
   try {
-    const { agent, userInput, debug = false } = req.body as RunAgentRequest;
+    const { agent, userInput, projectPath, debug = false } = req.body as RunAgentRequest;
 
     // Validate input
     if (!agent || !userInput) {
@@ -71,6 +72,7 @@ app.post("/api/agent/run", async (req: Request, res: Response) => {
       await runAgent({
         agent,
         userInput,
+        projectPath,
         debug,
         onChunk: chunkHandler,
       });
