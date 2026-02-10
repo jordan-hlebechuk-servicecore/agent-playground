@@ -1,6 +1,5 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { readGuideline } from "../utils";
 import path from "path";
 import fs from "fs";
 
@@ -125,7 +124,8 @@ export const codingTools = {
 - Complex multi-step tasks
 - Operations that produce lots of output not needed after completion
 - Changes across multiple application layers
-Include all necessary context and instructions in the prompt.`,
+Include all necessary context and instructions in the prompt.
+Always specify to use TypeScript when the task involves writing code.`,
     inputSchema: z.object({
       description: z.string().describe("Short description of the task"),
       prompt: z.string().describe("Detailed task instructions with context"),
@@ -145,8 +145,15 @@ Include all necessary context and instructions in the prompt.`,
     { name: string; filePath: string; description: string; code: string },
     string
   >({
-    description: `Create a new React component file with production-ready code.
-Considers: Modern React patterns, TypeScript, proper types, accessibility, error handling.`,
+    description: `Create a new React component file with production-ready TypeScript code.
+IMPORTANT: Before creating components, read agents/agent_files/COMPONENT_GUIDELINES.md for folder structure and architecture standards.
+Requirements:
+- Always use TypeScript (.tsx)
+- Follow component folder structure from guidelines (ComponentName.tsx, useComponentName.ts, types.ts, index.ts)
+- Place reusable components in root /components with type-based subfolders
+- Place location-specific components in that location's /components folder
+- Separate logic (hooks) from presentation (JSX)
+- Modern React patterns, proper types, accessibility, error handling`,
     inputSchema: z.object({
       name: z.string().describe("Component name (PascalCase)"),
       filePath: z.string().describe("Full file path including filename"),
@@ -164,17 +171,24 @@ Considers: Modern React patterns, TypeScript, proper types, accessibility, error
       description: string;
       code: string;
     }) => {
+      let guidelinesNote = "";
       try {
-        await readGuideline("COMPONENT");
+        const guidelinesPath = path.join(
+          process.cwd(),
+          "agents/agent_files/COMPONENT_GUIDELINES.md"
+        );
+        const guidelines = await Bun.file(guidelinesPath).text();
+        guidelinesNote = `\n\nNote: Component created following COMPONENT_GUIDELINES.md standards.`;
       } catch {
-        // Guidelines file may not exist
+        guidelinesNote =
+          "\n\nWarning: Could not read COMPONENT_GUIDELINES.md - ensure component follows project standards.";
       }
 
       await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
       await Bun.write(filePath, code);
       context.filesCreated.push(filePath);
 
-      return `Created ${name} component at ${filePath}\nDescription: ${description}`;
+      return `Created ${name} component at ${filePath}\nDescription: ${description}${guidelinesNote}`;
     },
   }),
 

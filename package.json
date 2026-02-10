@@ -3,18 +3,42 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "dev:backend": "bun --watch src/backend/server.ts",
+    "dev:frontend": "bunx --bun vite",
+    "build:backend": "tsc src/backend/server.ts",
+    "start:backend": "node src/backend/server.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/node": "^25.2.1",
-    "tsx": "^4.21.0"
+    "@types/react": "^19.2.13",
+    "@types/react-dom": "^19.2.3",
+    "@types/styled-components": "^5.1.36",
+    "@vitejs/plugin-react": "^5.1.4",
+    "tsx": "^4.21.0",
+    "vite": "^7.3.1"
   },
   "peerDependencies": {
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.37",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
     "ai": "^6.0.72",
+    "cors": "^2.8.6",
     "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "fast-glob": "^3.3.3",
+    "glob": "^13.0.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "styled-components": "^6.3.9",
     "zod": "^4.3.6"
   }
 }

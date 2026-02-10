@@ -16,7 +16,7 @@ function saveToHistory(filePath: string, content: string) {
 export const fileTools = {
   createFile: tool<{ path: string; content: string }, string>({
     description:
-      "Create or overwrite a file. Use for new files or when replacing nearly all content of a small file (under ~250 lines). For partial edits to existing files, use `editFile` instead.",
+      "Create or overwrite a file. Use for new files or when replacing nearly all content of a small file (under ~250 lines). For partial edits to existing files, use `editFile` instead. Always use TypeScript (.ts/.tsx) when creating code files.",
     inputSchema: z.object({
       path: z.string().describe("Absolute path to the file to create"),
       content: z.string().describe("The content to write to the file"),
@@ -44,7 +44,8 @@ export const fileTools = {
 - old_str must exist in the file and be unique (add context lines if needed)
 - old_str and new_str must be different
 - Set replace_all to true to replace all occurrences
-- Returns a diff of changes made`,
+- Returns a diff of changes made
+- Always write TypeScript code when editing code files`,
     inputSchema: z.object({
       path: z.string().describe("Absolute path to the file to edit"),
       old_str: z.string().describe("Text to search for and replace"),
@@ -369,7 +370,8 @@ Do NOT use when:
   }),
 
   createDirectory: tool<{ path: string }, string>({
-    description: "Create a directory (creates parent directories if needed)",
+    description:
+      "Create a directory (creates parent directories if needed). Follow the folder structure guidelines in agents/agent_files/COMPONENT_GUIDELINES.md when creating directories for components.",
     inputSchema: z.object({
       path: z.string().describe("Absolute path to the directory to create"),
     }),

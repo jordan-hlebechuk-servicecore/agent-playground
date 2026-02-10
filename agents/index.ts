@@ -10,20 +10,30 @@ interface CreateTextStreamProps {
   system: string;
 }
 
+interface AgentStreamChunk {
+  type: "text-delta" | "tool-call" | "tool-result" | "finish";
+  text?: string;
+  toolName?: string;
+  input?: unknown;
+  output?: unknown;
+}
+
 interface RunAgentProps {
   agent: AgentName;
+  userInput: string;
   debug?: boolean;
+  onChunk?: (chunk: AgentStreamChunk) => void;
 }
 
 type AgentName = "coding" | "calculator";
 
-async function runAgent({ agent, debug = false }: RunAgentProps) {
-  const terminal = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  const userPrompt = await terminal.question("Prompt to agent: ");
+export async function runAgent({
+  agent,
+  userInput,
+  debug = false,
+  onChunk,
+}: RunAgentProps): Promise<void> {
+  const userPrompt = userInput;
 
   const anthropicProvider = debug
     ? createAnthropic({
@@ -37,7 +47,7 @@ async function runAgent({ agent, debug = false }: RunAgentProps) {
       prompt: userPrompt,
       tools: tools,
       system: system,
-      stopWhen: stepCountIs(10),
+      stopWhen: stepCountIs(50),
       onStepFinish: (step) => {
         if (debug) {
           console.log(`Step: ${step.toolCalls.length} tool calls`);
@@ -69,22 +79,40 @@ async function runAgent({ agent, debug = false }: RunAgentProps) {
     for await (const chunk of textStream!.fullStream) {
       switch (chunk.type) {
         case "text-delta":
-          process.stdout.write(chunk.text);
+          if (onChunk) {
+            onChunk({ type: "text-delta", text: chunk.text });
+          } else {
+            process.stdout.write(chunk.text);
+          }
           break;
         case "tool-call":
-          console.log(`\n🔧 Calling: ${chunk.toolName}`, chunk.input);
+          if (onChunk) {
+            onChunk({
+              type: "tool-call",
+              toolName: chunk.toolName,
+              input: chunk.input,
+            });
+          } else {
+            console.log(`\n🔧 Calling: ${chunk.toolName}`, chunk.input);
+          }
           break;
         case "tool-result":
-          console.log(`✅ Result:`, chunk.output);
+          if (onChunk) {
+            onChunk({ type: "tool-result", output: chunk.output });
+          } else {
+            console.log(`✅ Result:`, chunk.output);
+          }
           break;
       }
     }
   } catch (error) {
     console.error("Error:", error);
   } finally {
-    console.log("\n🏁 Agent finished");
-    process.exit(0);
+    if (onChunk) {
+      onChunk({ type: "finish" });
+    } else {
+      console.log("\n🏁 Agent finished");
+      process.exit(0);
+    }
   }
 }
-
-runAgent({ agent: "coding", debug: true });
